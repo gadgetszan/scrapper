@@ -1,9 +1,6 @@
 package com.gadgetszan.scrapper.utils;
 
 import com.gadgetszan.scrapper.model.YelpReview;
-import com.google.api.client.util.Lists;
-import com.google.api.gax.core.FixedCredentialsProvider;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.vision.v1.*;
 import com.google.protobuf.ByteString;
 import org.openqa.selenium.By;
@@ -13,13 +10,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,29 +61,38 @@ public class SeleniumScrapping {
         return yelpReviews;
     }
 
-    public String getMaxPage(String url){
+    public Integer getMaxPage(String url){
         System.setProperty("webdriver.chrome.driver","D:\\JAVA\\scrapper\\chromedriver\\chromedriver.exe");
         WebDriver driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.manage().timeouts().pageLoadTimeout(40, TimeUnit.SECONDS);
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-        driver.get("https://www.yelp.com/biz/my-kitchen-by-chef-chris-manila");
+        driver.get(url);
 
-        List<WebElement> lastPage =
-                driver.findElements(By.xpath("//div[starts-with(@class,' pagination-link-container')]"));
+        String lastPage =
+                driver.findElement(By.xpath("//div[starts-with(@class," +
+                        "' pagination__')]/div[2]/span"))
+                .getText();
 
-        String xpathString = "//div[starts-with(@class," +
-                "' pagination-link-container')]["+ lastPage.size() +"]//div";
-
-        System.out.println(xpathString);
-        String maxPage = driver.findElement
-                (By.xpath(xpathString)).getText();
-
-
-        //System.out.println(maxPage);
-        driver.close();
-        return "";
+            String str[] = lastPage.split(" ");
+            lastPage = str[2];
+            driver.close();
+        return Integer.parseInt(lastPage);
     }
+
+    public List<String> getUrls(String url,Integer pages){
+        List<String> urls = new ArrayList();
+        String str[] = url.split("\\?");
+        String baseUrl = str[0];
+        for(int i =0;i<pages;i++){
+            if(i==0){
+                urls.add(baseUrl);
+            }else{
+                urls.add(baseUrl + "?start=" + (i*10));
+            }
+        }
+        return urls;
+    };
 
     public List<YelpReview> setGoogleVision(List<YelpReview> yelpReviews) throws Exception,IOException {
         ImageAnnotatorClient vision = ImageAnnotatorClient.create();
@@ -130,6 +131,5 @@ public class SeleniumScrapping {
     }
 
     public static void main(String[] args) throws IOException, URISyntaxException {
-
     }
 }

@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface YelpScrapeService {
     List<YelpReview> getReviews(String url) throws Exception;
+    List<YelpReview> getAllReviews(String url) throws Exception;
 }

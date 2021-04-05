@@ -25,10 +25,20 @@ public class YelpScrapperController {
 
     @PostMapping("/reviews")
     public List<YelpReview>
-            getScrapeReviews(@RequestBody YelpScrapeRequest scrapeRequest) throws Exception{
+            getScrapeReviewsPerPage(@RequestBody YelpScrapeRequest scrapeRequest) throws Exception{
 
         List<YelpReview> yelpReviews =
                 yelpScrapeService.getReviews(scrapeRequest.getUrl());
         return yelpReviews;
     }
+
+
+    @PostMapping("/allReviews")
+    public List<YelpReview>
+        getScrapeAllReviewsAllPage(@RequestBody YelpScrapeRequest scrapeRequest) throws Exception{
+        List<YelpReview> yelpReviews =
+                yelpScrapeService.getAllReviews(scrapeRequest.getUrl());
+        return yelpReviews;
+    }
+
 }
